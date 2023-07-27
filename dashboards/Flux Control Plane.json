@@ -1368,8 +1368,8 @@
         {
           "current": {
             "selected": false,
-            "text": "Managed_Prometheus_jtambertest",
-            "value": "Managed_Prometheus_jtambertest"
+            "text": "Managed_Prometheus_myworkspace",
+            "value": "Managed_Prometheus_myworkspace"
           },
           "hide": 0,
           "includeAll": false,
