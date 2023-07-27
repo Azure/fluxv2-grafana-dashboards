@@ -1025,12 +1025,8 @@
           "current": {
             "selected": true,
             "text": [
-              "cluster-config",
-              "fluxev2demo"
             ],
             "value": [
-              "cluster-config",
-              "fluxev2demo"
             ]
           },
           "datasource": {
