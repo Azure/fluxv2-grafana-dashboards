@@ -992,12 +992,8 @@
           "current": {
             "selected": true,
             "text": [
-              "ev2demo-aks-eastus",
-              "jtamber-arc-flux-test"
             ],
             "value": [
-              "ev2demo-aks-eastus",
-              "jtamber-arc-flux-test"
             ]
           },
           "datasource": {
