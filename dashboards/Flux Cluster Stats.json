@@ -3,10 +3,7 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
+        "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -41,7 +38,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 26,
+  "id": 25,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -98,20 +95,19 @@
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by(cluster) (go_info{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
-          "format": "time_series",
-          "instant": false,
+          "editorMode": "builder",
+          "exemplar": true,
+          "expr": "count by(cluster) (gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"True\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}) - sum by(cluster) (gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"Deleted\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"})",
           "interval": "",
           "legendFormat": "{{cluster}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Controllers",
+      "title": "Cluster Reconcilers",
       "type": "stat"
     },
     {
@@ -122,59 +118,18 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisGridShow": false,
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 23,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 50
-              },
-              {
                 "color": "red",
-                "value": 100
+                "value": null
               }
             ]
           },
-          "unit": "s"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -184,36 +139,40 @@
         "x": 6,
         "y": 0
       },
-      "id": 23,
+      "id": 28,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
+        "text": {},
+        "textMode": "value"
       },
       "pluginVersion": "9.4.12",
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "max by(cluster) (workqueue_longest_running_processor_seconds{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
-          "hide": false,
+          "exemplar": true,
+          "expr": "sum by(cluster) (gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"})",
           "interval": "",
           "legendFormat": "{{cluster}}",
           "range": true,
-          "refId": "B"
+          "refId": "A"
         }
       ],
-      "title": "Max Work Queue",
-      "type": "timeseries"
+      "title": "Failing Reconcilers",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -223,6 +182,7 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -232,16 +192,12 @@
                 "value": null
               },
               {
-                "color": "#EAB839",
-                "value": 500000000
-              },
-              {
                 "color": "red",
-                "value": 900000000
+                "value": 100
               }
             ]
           },
-          "unit": "decbits"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -251,36 +207,40 @@
         "x": 12,
         "y": 0
       },
-      "id": 25,
+      "id": 29,
       "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
+        "text": {},
+        "textMode": "value"
       },
       "pluginVersion": "9.4.12",
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(cluster) (go_memstats_alloc_bytes{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
+          "exemplar": true,
+          "expr": "count by(cluster) (gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"True\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}) - sum by(cluster) (gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"Deleted\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"})",
           "interval": "",
-          "legendFormat": "__auto",
+          "legendFormat": "{{cluster}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Memory",
-      "type": "gauge"
+      "title": "Kubernetes Manifests Sources",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -290,58 +250,18 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisGridShow": false,
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 29,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 50
-              },
-              {
                 "color": "red",
-                "value": 100
+                "value": null
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -351,35 +271,40 @@
         "x": 18,
         "y": 0
       },
-      "id": 26,
+      "id": 30,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
+        "text": {},
+        "textMode": "value"
       },
       "pluginVersion": "9.4.12",
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(cluster) (rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"}[2m]))",
+          "exemplar": true,
+          "expr": "sum by(cluster) (gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"})",
           "interval": "",
           "legendFormat": "{{cluster}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "API Requests",
-      "type": "timeseries"
+      "title": "Failing Sources",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -389,39 +314,6 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -431,89 +323,143 @@
                 "value": null
               },
               {
+                "color": "#EAB839",
+                "value": 1
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 61
               }
             ]
           },
-          "unit": "short"
+          "unit": "s"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
+        "h": 4,
+        "w": 12,
         "x": 0,
         "y": 5
       },
-      "id": 21,
+      "id": 8,
       "options": {
-        "legend": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
           "calcs": [
-            "mean",
-            "lastNotNull"
+            "mean"
           ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "showUnfilled": true,
+        "text": {}
       },
       "pluginVersion": "9.4.12",
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "editorMode": "builder",
-          "expr": "sum by(cluster) (rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", cluster=~\"$selected_cluster\"}[2m]))",
-          "hide": false,
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "  sum(rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\",kind=~\"Kustomization|HelmRelease\"}[5m])) by (kind)\n/\n  sum(rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\",kind=~\"Kustomization|HelmRelease\"}[5m])) by (kind)",
           "interval": "",
-          "legendFormat": "total {{cluster}}",
+          "legendFormat": "{{kind}}",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(cluster) (rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", code!~\"2..\", cluster=~\"$selected_cluster\"}[1m]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "errors {{cluster}}",
-          "range": true,
-          "refId": "B"
         }
       ],
-      "title": "Kubernetes API Requests",
-      "type": "timeseries"
+      "title": "Reconciler ops avg. duration",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 61
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "id": 31,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "9.4.12",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "  sum(rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\",kind=~\"GitRepository|HelmRepository|Bucket\"}[5m])) by (kind)\n/\n  sum(rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\",kind=~\"GitRepository|HelmRepository|Bucket\"}[5m])) by (kind)",
+          "interval": "",
+          "legendFormat": "{{kind}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Source ops avg. duration",
+      "type": "bargauge"
     },
     {
       "collapsed": false,
-      "datasource": {
-        "uid": "${DS_PROMETHEUS}"
-      },
+      "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 9
       },
       "id": 15,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "refId": "A"
-        }
-      ],
-      "title": "Resource Usage",
+      "title": "Status",
       "type": "row"
     },
     {
@@ -521,559 +467,295 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
             },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "filterable": true,
+            "inspect": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Ready"
+                },
+                "1": {
+                  "text": "Not Ready"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
+                "color": "blue",
+                "value": 0
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 1
               }
             ]
-          },
-          "unit": "s"
+          }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 10
       },
-      "id": 11,
+      "id": 33,
       "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull"
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
           ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
+          "show": false
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Status"
+          }
+        ]
       },
       "pluginVersion": "9.4.12",
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "rate(process_cpu_seconds_total{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"}[2m])",
+          "exemplar": true,
+          "expr": "gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}",
+          "format": "table",
+          "instant": true,
           "interval": "",
-          "legendFormat": "cluster: {{cluster}}, pod: {{kubernetes_pod_name}}",
-          "range": true,
+          "legendFormat": "",
           "refId": "A"
         }
       ],
-      "title": "CPU Usage",
-      "type": "timeseries"
+      "title": "Cluster reconciliation readiness ",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "app": true,
+              "container": true,
+              "endpoint": true,
+              "exported_namespace": false,
+              "instance": true,
+              "job": true,
+              "kubernetes_namespace": true,
+              "kubernetes_pod_name": true,
+              "namespace": true,
+              "pod": true,
+              "pod_template_hash": true,
+              "status": true,
+              "type": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Status",
+              "exported_namespace": "Namespace",
+              "kind": "Kind",
+              "name": "Name",
+              "namespace": "Operator Namespace"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
             },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "filterable": true,
+            "inspect": false
           },
-          "decimals": 0,
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Ready"
+                },
+                "1": {
+                  "text": "Not Ready"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
+                "color": "blue",
+                "value": 0
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 1
               }
             ]
-          },
-          "unit": "bytes"
+          }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 10
       },
-      "id": 13,
+      "id": 34,
       "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull"
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
           ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
+          "show": false
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Status"
+          }
+        ]
       },
       "pluginVersion": "9.4.12",
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(cluster, pod) (container_memory_working_set_bytes{namespace=\"$namespace\", container!=\"POD\", container!=\"\", pod=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
-          "hide": false,
+          "exemplar": true,
+          "expr": "gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}",
+          "format": "table",
+          "instant": true,
           "interval": "",
-          "legendFormat": "cluster: {{cluster}} pod: {{pod}}",
-          "range": true,
+          "legendFormat": "",
           "refId": "A"
         }
       ],
-      "title": "Memory Usage",
-      "type": "timeseries"
+      "title": "Source acquisition readiness ",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "app": true,
+              "container": true,
+              "endpoint": true,
+              "exported_namespace": false,
+              "instance": true,
+              "job": true,
+              "kubernetes_namespace": true,
+              "kubernetes_pod_name": true,
+              "namespace": true,
+              "pod": true,
+              "pod_template_hash": true,
+              "status": true,
+              "type": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Status",
+              "exported_namespace": "Namespace",
+              "kind": "Kind",
+              "name": "Name",
+              "namespace": "Operator Namespace"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "collapsed": false,
-      "datasource": {
-        "uid": "${DS_PROMETHEUS}"
-      },
+      "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 21
       },
       "id": 17,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "refId": "A"
-        }
-      ],
-      "title": "Reconciliation Stats",
-      "type": "row"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 26
-      },
-      "hiddenSeries": false,
-      "id": 27,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "9.4.12",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "sum by(cluster) (workqueue_longest_running_processor_seconds{name=\"kustomization\", cluster=~\"$selected_cluster\"})",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeRegions": [],
-      "title": "Cluster Reconciliation Duration",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:912",
-          "format": "s",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:913",
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "stepAfter",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "opm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 34
-      },
-      "id": 2,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.4.12",
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(controller, cluster) (increase(controller_runtime_reconcile_total{controller=\"kustomization\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
-          "interval": "",
-          "legendFormat": "successful reconciliations {{cluster}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(controller, cluster) (increase(controller_runtime_reconcile_total{controller=\"kustomization\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
-          "interval": "",
-          "legendFormat": "failed reconciliations {{cluster}}",
-          "range": true,
-          "refId": "B"
-        }
-      ],
-      "title": "Cluster Reconciliations ops/min",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "stepAfter",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "opm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 34
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.4.12",
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(cluster) (increase(controller_runtime_reconcile_total{controller=\"gitrepository\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
-          "interval": "",
-          "legendFormat": "successful git pulls {{cluster}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(cluster) (increase(controller_runtime_reconcile_total{controller=\"gitrepository\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
-          "interval": "",
-          "legendFormat": "failed git pulls {{cluster}}",
-          "range": true,
-          "refId": "B"
-        }
-      ],
-      "title": "Git Sources ops/min",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "datasource": {
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 43
-      },
-      "id": 19,
-      "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "refId": "A"
-        }
-      ],
-      "title": "Helm Stats",
+      "title": "Timing",
       "type": "row"
     },
     {
@@ -1081,6 +763,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1138,18 +821,17 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 22
       },
-      "id": 9,
+      "id": 27,
       "options": {
         "legend": {
           "calcs": [
-            "mean",
-            "lastNotNull"
+            "mean"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "right",
-          "showLegend": false
+          "showLegend": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1160,46 +842,20 @@
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "histogram_quantile(0.5, sum by(cluster) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=~\"$selected_cluster\"}[5m])))",
-          "hide": true,
-          "interval": "",
-          "legendFormat": "P50 {{cluster}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "histogram_quantile(0.9, sum by(le, cluster) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=~\"$selected_cluster\"}[5m])))",
-          "hide": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "P90 {{cluster}}",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "histogram_quantile(0.99, sum by(le, cluster) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=~\"$selected_cluster\"}[5m])))",
+          "exemplar": true,
+          "expr": "sum by(kind, name, cluster) (rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}[5m])) / sum by(kind, name, cluster) (rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}[5m]))",
           "hide": false,
-          "instant": false,
           "interval": "",
-          "legendFormat": "P99 {{cluster}}",
+          "legendFormat": "{{cluster}}/{{kind}}/{{name}}",
           "range": true,
-          "refId": "C"
+          "refId": "B"
         }
       ],
-      "title": "Helm Release Duration",
+      "title": "Cluster reconciliation duration",
       "type": "timeseries"
     },
     {
@@ -1219,15 +875,15 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
+            "drawStyle": "line",
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "stepAfter",
+            "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -1257,25 +913,24 @@
               }
             ]
           },
-          "unit": "opm"
+          "unit": "s"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
+        "h": 8,
+        "w": 24,
         "x": 0,
-        "y": 52
+        "y": 30
       },
-      "id": 5,
+      "id": 35,
       "options": {
         "legend": {
           "calcs": [
-            "mean",
-            "lastNotNull"
+            "mean"
           ],
           "displayMode": "table",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
         "tooltip": {
@@ -1287,141 +942,20 @@
       "targets": [
         {
           "datasource": {
+            "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(controller, cluster) (increase(controller_runtime_reconcile_total{controller=\"helmrelease\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
+          "exemplar": true,
+          "expr": "sum by(kind, name, cluster) (rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}[5m])) / sum by(kind, name, cluster) (rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}[5m]))",
+          "hide": false,
           "interval": "",
-          "legendFormat": "successful reconciliations {{cluster}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(controller, cluster) (increase(controller_runtime_reconcile_total{controller=\"helmrelease\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
-          "interval": "",
-          "legendFormat": "failed reconciliations {{cluster}}",
+          "legendFormat": "{{cluster}}/{{kind}}/{{name}}",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "Helm Releases ops/min",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "stepAfter",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "opm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 52
-      },
-      "id": 6,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.4.12",
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(controller, cluster) (increase(controller_runtime_reconcile_total{controller=\"helmchart\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
-          "interval": "",
-          "legendFormat": "successful chart pulls {{cluster}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(cluster) (increase(controller_runtime_reconcile_total{controller=\"helmchart\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
-          "format": "time_series",
-          "interval": "",
-          "legendFormat": "failed chart pulls {{cluster}}",
-          "range": true,
-          "refId": "B"
-        }
-      ],
-      "title": "Helm Charts ops/min",
+      "title": "Source acquisition duration",
       "type": "timeseries"
     }
   ],
@@ -1442,27 +976,32 @@
         },
         "hide": 0,
         "includeAll": false,
+        "label": "Datasource",
         "multi": false,
         "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
+        "queryValue": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
       },
       {
+        "allValue": "",
         "current": {
           "selected": true,
           "text": [
+            "All"
           ],
           "value": [
+            "$__all"
           ]
         },
         "datasource": {
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "$DS_PROMETHEUS"
         },
-        "definition": "workqueue_work_duration_seconds_count",
+        "definition": "label_values(gotk_reconcile_condition, cluster)",
         "hide": 0,
         "includeAll": true,
         "label": "Cluster",
@@ -1470,43 +1009,50 @@
         "name": "selected_cluster",
         "options": [],
         "query": {
-          "query": "workqueue_work_duration_seconds_count",
-          "refId": "Prometheus-namespace-Variable-Query"
+          "query": "label_values(gotk_reconcile_condition, cluster)",
+          "refId": "StandardVariableQuery"
         },
         "refresh": 2,
-        "regex": "/.*cluster=\"([^\"]*).*/",
+        "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 5,
         "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
+        "allValue": "",
         "current": {
-          "selected": false,
-          "text": "flux-system",
-          "value": "flux-system"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "$DS_PROMETHEUS"
         },
-        "definition": "workqueue_work_duration_seconds_count",
+        "definition": "label_values(gotk_reconcile_condition, namespace)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Namespace",
-        "multi": false,
-        "name": "namespace",
+        "multi": true,
+        "name": "operator_namespace",
         "options": [],
         "query": {
-          "query": "workqueue_work_duration_seconds_count",
-          "refId": "Prometheus-namespace-Variable-Query"
+          "query": "label_values(gotk_reconcile_condition, namespace)",
+          "refId": "StandardVariableQuery"
         },
         "refresh": 2,
-        "regex": "/.*namespace=\"([^\"]*).*/",
+        "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 5,
         "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -1531,8 +1077,8 @@
     ]
   },
   "timezone": "",
-  "title": "Flux Control Plane",
-  "uid": "flux-control-plane",
+  "title": "Flux Cluster Stats",
+  "uid": "flux-cluster",
   "version": 4,
   "weekStart": ""
 }
