@@ -38,7 +38,7 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 39,
+    "id": 25,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -100,7 +100,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "count(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"True\", kind=~\"Kustomization|HelmRelease\", cluster=\"$selected_cluster\"}) - sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"Deleted\", kind=~\"Kustomization|HelmRelease\", cluster=\"$selected_cluster\"})",
+            "expr": "count(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"True\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}) - sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"Deleted\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"})",
             "interval": "",
             "legendFormat": "",
             "range": true,
@@ -164,7 +164,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"Kustomization|HelmRelease\", cluster=\"$selected_cluster\"})",
+            "expr": "sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"})",
             "interval": "",
             "legendFormat": "",
             "range": true,
@@ -232,7 +232,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "count(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"True\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=\"$selected_cluster\"}) - sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"Deleted\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=\"$selected_cluster\"})",
+            "expr": "count(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"True\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}) - sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"Deleted\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"})",
             "interval": "",
             "legendFormat": "",
             "range": true,
@@ -296,7 +296,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=\"$selected_cluster\"})",
+            "expr": "sum(gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"})",
             "interval": "",
             "legendFormat": "",
             "range": true,
@@ -560,7 +560,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"Kustomization|HelmRelease\", cluster=\"$selected_cluster\"}",
+            "expr": "gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}",
             "format": "table",
             "instant": true,
             "interval": "",
@@ -701,7 +701,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=\"$selected_cluster\"}",
+            "expr": "gotk_reconcile_condition{namespace=~\"$operator_namespace\", type=\"Ready\", status=\"False\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}",
             "format": "table",
             "instant": true,
             "interval": "",
@@ -847,7 +847,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "sum by(kind, name) (rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\", kind=~\"Kustomization|HelmRelease\", cluster=\"$selected_cluster\"}[5m])) / sum by(kind, name) (rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\", kind=~\"Kustomization|HelmRelease\", cluster=\"$selected_cluster\"}[5m]))",
+            "expr": "sum by(kind, name) (rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}[5m])) / sum by(kind, name) (rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\", kind=~\"Kustomization|HelmRelease\", cluster=~\"$selected_cluster\"}[5m]))",
             "hide": false,
             "interval": "",
             "legendFormat": "{{kind}}/{{name}}",
@@ -947,7 +947,7 @@
             },
             "editorMode": "builder",
             "exemplar": true,
-            "expr": "sum by(kind, name) (rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=\"$selected_cluster\"}[5m])) / sum by(kind, name) (rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=\"$selected_cluster\"}[5m]))",
+            "expr": "sum by(kind, name) (rate(gotk_reconcile_duration_seconds_sum{namespace=~\"$operator_namespace\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}[5m])) / sum by(kind, name) (rate(gotk_reconcile_duration_seconds_count{namespace=~\"$operator_namespace\", kind=~\"GitRepository|HelmRepository|Bucket\", cluster=~\"$selected_cluster\"}[5m]))",
             "hide": false,
             "interval": "",
             "legendFormat": "{{kind}}/{{name}}",
@@ -992,10 +992,8 @@
           "current": {
             "selected": true,
             "text": [
-              "All"
             ],
             "value": [
-              "$__all"
             ]
           },
           "datasource": {
@@ -1027,10 +1025,8 @@
           "current": {
             "selected": true,
             "text": [
-              "All"
             ],
             "value": [
-              "$__all"
             ]
           },
           "datasource": {
@@ -1079,6 +1075,6 @@
     "timezone": "",
     "title": "Flux Cluster Stats",
     "uid": "flux-cluster",
-    "version": 8,
+    "version": 3,
     "weekStart": ""
-  }
+}

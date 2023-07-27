@@ -41,7 +41,7 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 38,
+    "id": 26,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -101,7 +101,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum(go_info{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=\"$selected_cluster\"})",
+            "expr": "sum(go_info{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
             "interval": "",
             "legendFormat": "pods",
             "range": true,
@@ -170,7 +170,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "max(workqueue_longest_running_processor_seconds{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=\"$selected_cluster\"})",
+            "expr": "max(workqueue_longest_running_processor_seconds{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
             "hide": false,
             "interval": "",
             "legendFormat": "seconds",
@@ -238,7 +238,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum(go_memstats_alloc_bytes{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=\"$selected_cluster\"})",
+            "expr": "sum(go_memstats_alloc_bytes{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
             "interval": "",
             "legendFormat": "",
             "range": true,
@@ -306,7 +306,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum(rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum(rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"}[2m]))",
             "interval": "",
             "legendFormat": "requests",
             "range": true,
@@ -404,7 +404,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum(rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum(rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", cluster=~\"$selected_cluster\"}[2m]))",
             "hide": false,
             "interval": "",
             "legendFormat": "total",
@@ -416,7 +416,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum(rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", code!~\"2..\", cluster=\"$selected_cluster\"}[1m]))",
+            "expr": "sum(rate(rest_client_requests_total{kubernetes_namespace=\"$namespace\", code!~\"2..\", cluster=~\"$selected_cluster\"}[1m]))",
             "hide": false,
             "interval": "",
             "legendFormat": "errors",
@@ -538,7 +538,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "rate(process_cpu_seconds_total{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=\"$selected_cluster\"}[2m])",
+            "expr": "rate(process_cpu_seconds_total{kubernetes_namespace=\"$namespace\", kubernetes_pod_name=~\".*-controller-.*\", cluster=~\"$selected_cluster\"}[2m])",
             "interval": "",
             "legendFormat": "{{pod}}",
             "range": true,
@@ -636,7 +636,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum by(pod) (container_memory_working_set_bytes{namespace=\"$namespace\", container!=\"POD\", container!=\"\", pod=~\".*-controller-.*\", cluster=\"$selected_cluster\"})",
+            "expr": "sum by(pod) (container_memory_working_set_bytes{namespace=\"$namespace\", container!=\"POD\", container!=\"\", pod=~\".*-controller-.*\", cluster=~\"$selected_cluster\"})",
             "hide": false,
             "interval": "",
             "legendFormat": "{{pod}}",
@@ -722,8 +722,11 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "workqueue_longest_running_processor_seconds{name=\"kustomization\", cluster=\"$selected_cluster\"}",
+            "exemplar": false,
+            "expr": "workqueue_longest_running_processor_seconds{name=\"kustomization\", cluster=~\"$selected_cluster\"}",
+            "format": "time_series",
             "hide": false,
+            "instant": false,
             "interval": "",
             "legendFormat": "kustomizations",
             "range": true,
@@ -849,8 +852,8 @@
             "datasource": {
               "uid": "${DS_PROMETHEUS}"
             },
-            "editorMode": "code",
-            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"kustomization\", result!=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "editorMode": "builder",
+            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"kustomization\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "successful reconciliations ",
@@ -861,8 +864,8 @@
             "datasource": {
               "uid": "${DS_PROMETHEUS}"
             },
-            "editorMode": "code",
-            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"kustomization\", result=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "editorMode": "builder",
+            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"kustomization\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "failed reconciliations ",
@@ -961,7 +964,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum(increase(controller_runtime_reconcile_total{controller=\"gitrepository\", result!=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum(increase(controller_runtime_reconcile_total{controller=\"gitrepository\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "successful git pulls",
@@ -973,7 +976,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum(increase(controller_runtime_reconcile_total{controller=\"gitrepository\", result=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum(increase(controller_runtime_reconcile_total{controller=\"gitrepository\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "failed git pulls",
@@ -1095,7 +1098,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "histogram_quantile(0.5, sum by(le) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=\"$selected_cluster\"}[5m])))",
+            "expr": "histogram_quantile(0.5, sum by(le) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=~\"$selected_cluster\"}[5m])))",
             "hide": true,
             "interval": "",
             "legendFormat": "P50",
@@ -1107,7 +1110,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "histogram_quantile(0.9, sum by(le) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=\"$selected_cluster\"}[5m])))",
+            "expr": "histogram_quantile(0.9, sum by(le) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=~\"$selected_cluster\"}[5m])))",
             "hide": true,
             "interval": "",
             "legendFormat": "P90",
@@ -1119,7 +1122,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "histogram_quantile(0.99, sum by(le) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=\"$selected_cluster\"}[5m])))",
+            "expr": "histogram_quantile(0.99, sum by(le) (rate(controller_runtime_reconcile_time_seconds_bucket{controller=\"helmrelease\", cluster=~\"$selected_cluster\"}[5m])))",
             "hide": false,
             "interval": "",
             "legendFormat": "P99",
@@ -1218,7 +1221,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmrelease\", result!=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmrelease\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "successful reconciliations ",
@@ -1230,7 +1233,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmrelease\", result=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmrelease\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "failed reconciliations ",
@@ -1329,7 +1332,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmchart\", result!=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmchart\", result!=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "successful chart pulls",
@@ -1341,7 +1344,7 @@
               "uid": "${DS_PROMETHEUS}"
             },
             "editorMode": "builder",
-            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmchart\", result=\"error\", cluster=\"$selected_cluster\"}[2m]))",
+            "expr": "sum by(controller) (increase(controller_runtime_reconcile_total{controller=\"helmchart\", result=\"error\", cluster=~\"$selected_cluster\"}[2m]))",
             "format": "time_series",
             "interval": "",
             "legendFormat": "failed chart pulls",
@@ -1353,7 +1356,7 @@
         "type": "timeseries"
       }
     ],
-    "refresh": "10s",
+    "refresh": "30s",
     "revision": 1,
     "schemaVersion": 38,
     "style": "light",
@@ -1381,9 +1384,11 @@
         },
         {
           "current": {
-            "selected": false,
-            "text": "jtamber-aks",
-            "value": "jtamber-aks"
+            "selected": true,
+            "text": [
+            ],
+            "value": [
+            ]
           },
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
@@ -1392,7 +1397,7 @@
           "hide": 0,
           "includeAll": false,
           "label": "Cluster",
-          "multi": false,
+          "multi": true,
           "name": "selected_cluster",
           "options": [],
           "query": {
@@ -1459,6 +1464,6 @@
     "timezone": "",
     "title": "Flux Control Plane",
     "uid": "flux-control-plane",
-    "version": 7,
+    "version": 2,
     "weekStart": ""
-  }
+}
