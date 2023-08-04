@@ -781,9 +781,14 @@
             "query": "",
             "resources": []
           },
-          "queryType": "Azure Resource Groups",
+          "azureResourceGraph": {
+            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/extensions\"\r\n| distinct resourceGroup"
+          },
+          "queryType": "Azure Resource Graph",
           "refId": "A",
-          "subscription": "$Subscriptions"
+          "subscriptions": [
+            "$Subscriptions"
+          ]
         },
         "refresh": 1,
         "regex": "",
