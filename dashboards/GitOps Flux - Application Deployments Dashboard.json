@@ -224,7 +224,7 @@
             "timeGrain": "auto"
           },
           "azureResourceGraph": {
-            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/extensions\"\r\n| where properties.ExtensionType =~ \"microsoft.flux\"\r\n| parse id with * \"ManagedClusters/\" aksClusterName \"/\" * \r\n| parse id with * \"ConnectedClusters/\" arcClusterName \"/\" *\r\n| extend clusterName = iff(isempty(aksClusterName), arcClusterName, aksClusterName)\r\n| extend clusterType = iff(isempty(aksClusterName), \"Microsoft.Kubernetes/connectedClusters\", \"Microsoft.ContainerService/managedClusters\")\r\n| extend provisioningState = tostring(properties.ProvisioningState)\r\n| extend statuses = iff(provisioningState == \"Failed\", properties[\"Statuses\"][0][\"Message\"], iff(provisioningState == \"Succeeded\", \"Successfully installed the extension\", iff(provisioningState == \"Deleting\", \"Deleting the extension\",\"Creating the extension\")))\r\n| project SubscriptionID=tostring(subscriptionId), ResourceGroup=tostring(resourceGroup), ClusterType=clusterType, ClusterName=tostring(clusterName), Version=tostring(properties.Version), ProvisioningState=provisioningState, StatusMsg =tostring(statuses)"
+            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/extensions\"\r\n| extend ResourceGroup=tostring(resourceGroup)\r\n| where ResourceGroup in~ ($ResourceGroups)\r\n| where properties.ExtensionType =~ \"microsoft.flux\"\r\n| parse id with * \"ManagedClusters/\" aksClusterName \"/\" * \r\n| parse id with * \"ConnectedClusters/\" arcClusterName \"/\" *\r\n| extend clusterName = iff(isempty(aksClusterName), arcClusterName, aksClusterName)\r\n| extend clusterType = iff(isempty(aksClusterName), \"Microsoft.Kubernetes/connectedClusters\", \"Microsoft.ContainerService/managedClusters\")\r\n| extend provisioningState = tostring(properties.ProvisioningState)\r\n| extend statuses = iff(provisioningState == \"Failed\", properties[\"Statuses\"][0][\"Message\"], iff(provisioningState == \"Succeeded\", \"Successfully installed the extension\", iff(provisioningState == \"Deleting\", \"Deleting the extension\",\"Creating the extension\")))\r\n| project SubscriptionID=tostring(subscriptionId), ResourceGroup, ClusterType=clusterType, ClusterName=tostring(clusterName), Version=tostring(properties.Version), ProvisioningState=provisioningState, StatusMsg =tostring(statuses)"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -406,7 +406,7 @@
             "timeGrain": "auto"
           },
           "azureResourceGraph": {
-            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/fluxconfigurations\"\r\n| parse id with * \"ManagedClusters/\" aksClusterName \"/\" * \r\n| parse id with * \"ConnectedClusters/\" arcClusterName \"/\" *\r\n| extend clusterName = iff(isempty(aksClusterName), arcClusterName, aksClusterName)\r\n| extend clusterType = iff(isempty(aksClusterName), \"Microsoft.Kubernetes/connectedClusters\", \"Microsoft.ContainerService/managedClusters\")\r\n| extend url = iff(properties.sourceKind =~ \"GitRepository\", tostring(properties.gitRepository.url), iff(properties.sourceKind =~ \"AzureBlob\", tostring(properties.azureBlob.url), tostring(properties.bucket.url)))\r\n| project SubscriptionID=tostring(subscriptionId), ResourceGroup=tostring(resourceGroup), ClusterName=tostring(clusterName), ClusterType=clusterType, Configuration=tostring(name), SourceKind=tostring(properties.sourceKind), RepositoryURL=url, SourceLastSyncCommit=tostring(properties.sourceSyncedCommitId), ComplianceState=tostring(properties.complianceState)\r\n| order by ResourceGroup, ClusterName"
+            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/fluxconfigurations\"\r\n| extend ResourceGroup=tostring(resourceGroup)\r\n| where ResourceGroup in~ ($ResourceGroups)\r\n| parse id with * \"ManagedClusters/\" aksClusterName \"/\" * \r\n| parse id with * \"ConnectedClusters/\" arcClusterName \"/\" *\r\n| extend clusterName = iff(isempty(aksClusterName), arcClusterName, aksClusterName)\r\n| extend clusterType = iff(isempty(aksClusterName), \"Microsoft.Kubernetes/connectedClusters\", \"Microsoft.ContainerService/managedClusters\")\r\n| extend url = iff(properties.sourceKind =~ \"GitRepository\", tostring(properties.gitRepository.url), iff(properties.sourceKind =~ \"AzureBlob\", tostring(properties.azureBlob.url), tostring(properties.bucket.url)))\r\n| project SubscriptionID=tostring(subscriptionId), ResourceGroup=tostring(resourceGroup), ClusterName=tostring(clusterName), ClusterType=clusterType, Configuration=tostring(name), SourceKind=tostring(properties.sourceKind), RepositoryURL=url, SourceLastSyncCommit=tostring(properties.sourceSyncedCommitId), ComplianceState=tostring(properties.complianceState)\r\n| order by ResourceGroup, ClusterName"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -557,7 +557,7 @@
             "timeGrain": "auto"
           },
           "azureResourceGraph": {
-            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/extensions\"\r\n| where properties.ExtensionType =~ \"microsoft.flux\"\r\n| extend provisioningState = tostring(properties.ProvisioningState)\r\n| summarize Count=count() by provisioningState"
+            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/extensions\"\r\n| extend ResourceGroup=tostring(resourceGroup)\r\n| where ResourceGroup in~ ($ResourceGroups)\r\n| where properties.ExtensionType =~ \"microsoft.flux\"\r\n| extend provisioningState = tostring(properties.ProvisioningState)\r\n| summarize Count=count() by provisioningState"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -693,7 +693,7 @@
             "timeGrain": "auto"
           },
           "azureResourceGraph": {
-            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/fluxconfigurations\"\r\n| extend complianceState=iff(isnull(properties.complianceState), \"Pending\", tostring(properties.complianceState))\r\n| summarize Count=count() by complianceState"
+            "query": "kubernetesconfigurationresources\r\n| where type == \"microsoft.kubernetesconfiguration/fluxconfigurations\"\r\n| extend ResourceGroup=tostring(resourceGroup)\r\n| where ResourceGroup in~ ($ResourceGroups)\r\n| extend complianceState=iff(isnull(properties.complianceState), \"Pending\", tostring(properties.complianceState))\r\n| summarize Count=count() by complianceState"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -756,6 +756,34 @@
           },
           "queryType": "Azure Subscriptions",
           "refId": "A"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_FLUX_GITOPS}"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Resource Groups",
+        "multi": true,
+        "name": "ResourceGroups",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "queryType": "Azure Resource Groups",
+          "refId": "A",
+          "subscription": "$Subscriptions"
         },
         "refresh": 1,
         "regex": "",
