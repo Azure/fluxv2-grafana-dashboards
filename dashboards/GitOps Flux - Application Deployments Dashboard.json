@@ -773,6 +773,6 @@
   "timezone": "",
   "title": "GitOps Flux - Application Deployments Dashboard",
   "uid": "gitops-application-deployments",
-  "version": 8,
+  "version": 1,
   "weekStart": ""
 }
